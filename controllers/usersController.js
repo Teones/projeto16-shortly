@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt"
+import { v4 as uuid } from "uuid";
 
 import db from "../config/db.js"
 
@@ -31,11 +32,20 @@ export async function createUser (req, res) {
 }
 
 export async function login (req, res) {
-    const user = req.body;
-    console.log(user)
+    const {email, password} = req.body;
 
     try {
-        
+        const result = await db.query(`SELECT * FROM users WHERE email = $1`, [email]);
+        if (result.rowCount === 0) {
+            return res.sendStatus(401) // unauthorized
+        }
+
+        if(bcrypt.compareSync(password, result.rows[0].password)) {
+            const token = uuid();
+            return res.send(token)
+        }
+
+        return res.sendStatus(401) // unauthorized
     } catch (error) {
         console.log(error);
         res.sendStatus(500); // internal server error
