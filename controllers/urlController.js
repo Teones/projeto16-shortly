@@ -27,7 +27,11 @@ export async function getUrlById (req, res) {
         const result = await db.query(`
         SELECT id, "urlCompressed", url FROM links WHERE id = $1
         `, [id]);
-        res.send(result.rows)
+
+        if(result.rowCount === 0) {
+            return res.status(404).send(`url não encontrada`) // Nor Found
+        }
+        return res.send(result.rows)
     } catch (error) {
         console.log(error);
         res.sendStatus(500); // internal server error
