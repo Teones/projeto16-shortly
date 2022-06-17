@@ -42,6 +42,10 @@ export async function login (req, res) {
 
         if(bcrypt.compareSync(password, result.rows[0].password)) {
             const token = uuid();
+            const userId = result.rows[0].id
+            await db.query(`INSERT INTO tokens ("userId", value)
+            VALUES ($1, $2)`, [userId, token]);
+
             return res.send(token)
         }
 

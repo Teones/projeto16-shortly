@@ -1,7 +1,8 @@
 import { Router } from "express";
+
 import { createUser, login } from "../controllers/usersController.js";
-import { validateLogin } from "../middlewares/loginValidator.js";
-import { validateUser } from "../middlewares/usersValidator.js";
+
+import { validateUser, validateLogin } from "../middlewares/usersValidator.js";
 
 const userRouter = Router();
 
