@@ -29,7 +29,7 @@ export async function getUrlById (req, res) {
         `, [id]);
 
         if(result.rowCount === 0) {
-            return res.status(404).send(`url não encontrada`) // Nor Found
+            return res.status(404).send(`url não encontrada`) // Not Found
         }
         return res.send(result.rows)
     } catch (error) {
@@ -47,7 +47,7 @@ export async function getShortUrl (req, res) {
         `, [shortUrl]);
 
         if(result.rowCount === 0) {
-            return res.status(404).send(`url não encontrada`) // Nor Found
+            return res.status(404).send(`url não encontrada`) // Not Found
         };
 
         const upViews = (result.rows[0].visitors)+1
@@ -58,6 +58,28 @@ export async function getShortUrl (req, res) {
         return res.redirect(result.rows[0].url)
     } catch (error) {
          console.log(error);
+        return res.sendStatus(500); // internal server error
+    }
+}
+
+export async function deleteShorten (req, res) {
+    const {id} = req.params;
+
+    try {
+        const link = await db.query(`
+        SELECT * FROM links WHERE id = $1
+        `, [id]);
+
+        if(link.rowCount === 0) {
+            return res.status(404).send(`url não encontrada`) // Not Found
+        };
+
+        const result = await db.query(`
+        DELETE FROM links WHERE id = $1
+        `, [id]);
+        return res.status(201).send(`url excluida`)
+    } catch (error) {
+        console.log(error);
         return res.sendStatus(500); // internal server error
     }
 }
