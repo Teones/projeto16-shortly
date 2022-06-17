@@ -37,3 +37,27 @@ export async function getUrlById (req, res) {
         res.sendStatus(500); // internal server error
     }
 }
+
+export async function getShortUrl (req, res) {
+    const {shortUrl} = req.params;
+
+    try {
+        const result = await db.query(`
+        SELECT * FROM links WHERE "urlCompressed" = $1
+        `, [shortUrl]);
+
+        if(result.rowCount === 0) {
+            return res.status(404).send(`url não encontrada`) // Nor Found
+        };
+
+        const upViews = (result.rows[0].visitors)+1
+        const views = await db.query(`
+        UPDATE links SET visitors = $1 WHERE "urlCompressed" = $2
+        `, [upViews, shortUrl])
+
+        return res.redirect(result.rows[0].url)
+    } catch (error) {
+         console.log(error);
+        return res.sendStatus(500); // internal server error
+    }
+}
